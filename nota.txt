@@ -1,0 +1,13 @@
+npm install express
+npm install mongoose
+npm install cors
+npm install pusher
+npm install bcryptjs
+npm install jsonwebtoken
+npm install nodemon -D
+
+
+npm install -g nodemon
+
+npm run start => para levantar
+npm run dev
