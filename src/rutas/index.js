@@ -20,7 +20,7 @@ router.post('/sendMessage', verifyToken, createMessage);
 router.get('/getMessages', verifyToken, getMessages);
 router.get('/getUsersLastMessage', verifyToken, getUsersLastMessage);
 router.get('/getUserLastTime', verifyToken, getUserLastTime);
-router.delete('/deleteMessage', verifyToken, deleteMessage);
+router.put('/deleteMessage', verifyToken, deleteMessage);
 
 
 export default router;
