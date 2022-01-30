@@ -1,23 +1,40 @@
 import express from "express";
 import mongoose from 'mongoose';
 import cors from 'cors';
+import Pusher from "pusher";
 
 import rutas from './rutas/index.js';
+import { PORT, DB_USERNAME, DB_PASSWORD, DB_NAME, PUSHER_APPID, PUSHER_KEY, PUSHER_SECRET, PUSHER_CLUSTER } from './config.js';
 
 // App Config
 const app = express();
-const port = process.env.PORT || 9000;
+const port = PORT;
+
+const pusher = new Pusher({
+    appId: PUSHER_APPID,
+    key: PUSHER_KEY,
+    secret: PUSHER_SECRET,
+    cluster: PUSHER_CLUSTER,
+    useTLS: true
+});
 
 // Midlewares
 app.use(cors());
 app.use(express.json());
 
 // DB Config
-const mongoURI = "mongodb://localhost/whatsapp";
+const mongoURI = `mongodb+srv://${DB_USERNAME}:${DB_PASSWORD}@cluster0.zip0t.mongodb.net/${DB_NAME}?retryWrites=true&w=majority`;
 mongoose.connect(mongoURI);
 
 mongoose.connection.once('open', () => {
     console.log('DB Connected');
+
+    const changeStream = mongoose.connection.collection('Message').watch();
+    changeStream.on('change', (change) => {
+        pusher.trigger('messages', 'newMessage', {
+            'change': change
+        });
+    });
 });
 
 // Rutas

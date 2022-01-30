@@ -4,6 +4,7 @@ npm install cors
 npm install pusher
 npm install bcryptjs
 npm install jsonwebtoken
+npm install dotenv
 npm install nodemon -D
 
 
