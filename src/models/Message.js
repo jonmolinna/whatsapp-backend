@@ -20,4 +20,4 @@ const messageSchema = mongoose.Schema({
     versionKey: false,
 });
 
-export default mongoose.model('Message', messageSchema);
+export default mongoose.model('messages', messageSchema);

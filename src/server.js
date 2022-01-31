@@ -29,7 +29,7 @@ mongoose.connect(mongoURI);
 mongoose.connection.once('open', () => {
     console.log('DB Connected');
 
-    const changeStream = mongoose.connection.collection('Message').watch();
+    const changeStream = mongoose.connection.collection('messages').watch();
 
     changeStream.on('change', (change) => {
         if (change.operationType === 'insert') {
