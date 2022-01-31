@@ -36,6 +36,10 @@ mongoose.connection.once('open', () => {
             pusher.trigger('messages', 'newMessages', {
                 'change': change
             });
+        } else if (change.operationType === 'update') {
+            pusher.trigger('deleteMessage', 'newDeleteMessage', {
+                'change': change
+            });
         }
         else {
             console.log('Error triggering Pusher');
