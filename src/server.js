@@ -30,11 +30,18 @@ mongoose.connection.once('open', () => {
     console.log('DB Connected');
 
     const changeStream = mongoose.connection.collection('Message').watch();
+
     changeStream.on('change', (change) => {
-        pusher.trigger('messages', 'newMessage', {
-            'change': change
-        });
-    });
+        if (change.operationType === 'insert') {
+            pusher.trigger('messages', 'newMessages', {
+                'change': change
+            });
+        }
+        else {
+            console.log('Error triggering Pusher');
+        }
+    })
+
 });
 
 // Rutas
