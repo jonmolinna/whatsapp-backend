@@ -14,7 +14,7 @@ export const createMessage = async (req, res) => {
       throw (errors.message = "No puedes enviar mensaje a ti mismo");
     if (content.trim() === "") throw (errors.message = "Ingrese un mensaje");
 
-    await Message.create({
+    const message = await Message.create({
       message: content,
       from: req.userToken.username,
       to: to,
@@ -22,7 +22,7 @@ export const createMessage = async (req, res) => {
       private: true,
     });
 
-    return res.status(200).json({ msg: "Se creo un mensaje" });
+    return res.status(200).json({ message });
   } catch (err) {
     return res.status(500).json({ error: err });
   }
@@ -54,39 +54,41 @@ export const getMessages = async (req, res) => {
 
 // Obtener usuarios - grupos y sus ultimos mensajes
 export const getUsersLastMessage = async (req, res) => {
-    try {
-        let users = await User.find(
-            { _id: { $ne: req.userToken.id}},
-            { password: 0, updatedAt: 0 }
-        );
+  try {
+    let users = await User.find(
+      { _id: { $ne: req.userToken.id } },
+      { password: 0, updatedAt: 0 }
+    );
 
-        let allUserMessages = await Message.find(
-            { $or: [
-                { from: req.userToken.username },
-                { to: req.userToken.username },
-            ]}
-        ).sort({'createdAt': 'desc'});
+    let allUserMessages = await Message.find(
+      {
+        $or: [
+          { from: req.userToken.username },
+          { to: req.userToken.username },
+        ]
+      }
+    ).sort({ 'createdAt': 'desc' });
 
-        let usersMessage = [];
+    let usersMessage = [];
 
-        users = users.map(otherUser => {
-            let latestMessage = allUserMessages.find(
-                m => m.from === otherUser.username || m.to === otherUser.username
-            )
-            let newUsuario = {
-                _id: otherUser._id,
-                name: otherUser.name,
-                username: otherUser.username,
-                createdAt: otherUser.createdAt,
-                latestMessage: latestMessage? latestMessage : null 
-            };
-            usersMessage.push(newUsuario);
-        });
+    users = users.map(otherUser => {
+      let latestMessage = allUserMessages.find(
+        m => m.from === otherUser.username || m.to === otherUser.username
+      )
+      let newUsuario = {
+        _id: otherUser._id,
+        name: otherUser.name,
+        username: otherUser.username,
+        createdAt: otherUser.createdAt,
+        latestMessage: latestMessage ? latestMessage : null
+      };
+      usersMessage.push(newUsuario);
+    });
 
-        return res.status(200).json({ users:  usersMessage });
-    } catch (err) {
-        return res.status(500).json({ error: err });
-    }
+    return res.status(200).json({ users: usersMessage });
+  } catch (err) {
+    return res.status(500).json({ error: err });
+  }
 };
 
 
@@ -95,7 +97,7 @@ export const getUserLastTime = async (req, res) => {
   const { to } = req.query;
 
   try {
-    let message = await Message.find({ from: to }).sort({'updatedAt': 'desc'}).limit(1);
+    let message = await Message.find({ from: to }).sort({ 'updatedAt': 'desc' }).limit(1);
     let user = await User.find({ username: to });
     const time = {};
 
@@ -104,7 +106,7 @@ export const getUserLastTime = async (req, res) => {
       time.username = message[0].from
     } else {
       time.updatedAt = user[0].updatedAt,
-      time.username = user[0].username
+        time.username = user[0].username
     }
 
     return res.status(200).json({ message: time });
@@ -121,16 +123,18 @@ export const deleteMessage = async (req, res) => {
   const username = req.userToken.username;
   try {
     const message = await Message.findOneAndUpdate(
-      { $and: [
-        { _id: idMessage },
-        { from: username },
-      ]},
+      {
+        $and: [
+          { _id: idMessage },
+          { from: username },
+        ]
+      },
       {
         status: true
       }
     );
 
-    if (message){
+    if (message) {
       return res.status(200).json({ message: "Se elimino el mensaje" });
     }
     else {
